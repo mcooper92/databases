@@ -2,14 +2,56 @@ var db = require('../db');
 
 module.exports = {
   messages: {
-    get: function () {}, // a function which produces all the messages
-    post: function () {} // a function which can be used to insert a message into the database
+    get: function (callback) {
+      //Why would you use a left join?
+
+      //When you begin building queries 
+      //using OUTER JOIN, the SQL Standard 
+      //considers the first table you name 
+      //as the one on the "left," and the 
+      //second table as the one on the "right." 
+      //So, if you want all the rows from the first 
+      //table and any matching rows from the second table, 
+      //you'll use a LEFT OUTER JOIN
+
+      var queryStr = 'SELECT * FROM messages LEFT JOIN users ON (messages.userid = user.id)' 
+      //or select individual properties? order?
+      db.query(queryStr, function(err, results){
+
+        callback(results);
+      });
+    },
+
+
+    post: function (parameters, callback) {
+        //will create a new message
+      var queryStr = 'INSERT INTO messages (message, userid, roomname) VALUES (?, (SELECT id FROM users WHERE username = ?), ?)'
+
+      db.query(queryStr, parameters, function(err, results){
+
+        callback(results);
+    }) 
   },
 
   users: {
     // Ditto as above.
-    get: function () {},
-    post: function () {}
+    get: function (callback) {
+      //will get all users
+      var queryStr = 'SELECT * FROM users' //"Selects all from users table"
+
+      db.query(queryStr, function(err, results){
+
+        callback(results); //defines what you want to do with the list of users
+      })
+    },
+    post: function (parameters, callback) {
+      //will create a user
+      var queryStr = 'INSERT INTO users (username) VALUE (?)' //Inserts value of username into users table
+
+      db.query(queryStr, parameters, function(err, results){
+
+        callback(results);
+    }
   }
 };
 
